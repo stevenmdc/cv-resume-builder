@@ -1,0 +1,10 @@
+export const A4_EXPORT_WIDTH_PX = 2480;
+export const A4_EXPORT_HEIGHT_PX = 3508;
+export const A4_RATIO = A4_EXPORT_WIDTH_PX / A4_EXPORT_HEIGHT_PX;
+
+export const A4_PREVIEW_WIDTH_PX = 794;
+export const A4_PREVIEW_HEIGHT_PX =
+  (A4_PREVIEW_WIDTH_PX / A4_EXPORT_WIDTH_PX) * A4_EXPORT_HEIGHT_PX;
+
+export const A4_WIDTH_MM = 210;
+export const A4_HEIGHT_MM = 297;
