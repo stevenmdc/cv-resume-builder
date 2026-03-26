@@ -16,6 +16,7 @@ import {
   A4_PREVIEW_WIDTH_PX,
 } from "@/lib/a4";
 import { exportResumeAsPdf, exportResumeAsPng } from "@/lib/export";
+import { normalizeResume } from "@/lib/resume";
 import { loadResumeFromStorage, saveResumeToStorage } from "@/lib/storage";
 import type { ResumeData } from "@/types/resume";
 
@@ -39,7 +40,7 @@ export function CVBuilder() {
 
   useEffect(() => {
     startTransition(() => {
-      setResume(loadResumeFromStorage());
+      setResume(normalizeResume(loadResumeFromStorage()));
       setIsHydrated(true);
     });
   }, []);
@@ -60,6 +61,24 @@ export function CVBuilder() {
     () => getExportFilename(resume.personal.fullName),
     [resume.personal.fullName],
   );
+
+  const handleProfileImageChange = (nextValue: string) => {
+    setResume((currentResume) => ({
+      ...currentResume,
+      personal: {
+        ...currentResume.personal,
+        avatar: nextValue,
+      },
+    }));
+  };
+
+  const handleResumeChange = (nextResume: ResumeData) => {
+    setResume(normalizeResume(nextResume));
+  };
+
+  const handleReset = () => {
+    setResume(normalizeResume(defaultResumeData));
+  };
 
   const runExport = async (
     exporter: (node: HTMLElement, name: string) => Promise<void>,
@@ -94,7 +113,11 @@ export function CVBuilder() {
             minHeight: `${A4_PREVIEW_HEIGHT_PX}px`,
           }}
         >
-          <ResumePreview ref={previewRef} resume={resume} />
+          <ResumePreview
+            ref={previewRef}
+            resume={resume}
+            onProfileImageChange={handleProfileImageChange}
+          />
         </div>
       </div>
 
@@ -117,8 +140,8 @@ export function CVBuilder() {
         isOpen={isSettingsOpen}
         resume={resume}
         onClose={() => setIsSettingsOpen(false)}
-        onReset={() => setResume(defaultResumeData)}
-        onChange={setResume}
+        onReset={handleReset}
+        onChange={handleResumeChange}
       />
     </>
   );

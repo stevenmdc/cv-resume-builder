@@ -4,12 +4,15 @@ import type { CSSProperties } from "react";
 
 import type { ResumeData } from "@/types/resume";
 
+import { ProfileImageUpload } from "../profile-image-upload";
+
 interface ResumeHeaderProps {
   personal: ResumeData["personal"];
   summary: string;
   primaryColor: string;
   accentColor: string;
   mutedColor: string;
+  onProfileImageChange: (nextValue: string) => void;
 }
 
 const contactItems = (personal: ResumeData["personal"]) => {
@@ -36,6 +39,7 @@ export function ResumeHeader({
   primaryColor,
   accentColor,
   mutedColor,
+  onProfileImageChange,
 }: ResumeHeaderProps) {
   const items = contactItems(personal);
   const isDataAvatar = personal.avatar.startsWith("data:");
@@ -72,7 +76,7 @@ export function ResumeHeader({
 
         <div className="flex items-center justify-center self-start pt-1">
           <div
-            className="relative h-28 w-28 overflow-hidden rounded-full border-4 shadow-[0_16px_32px_rgba(28,25,23,0.12)]"
+            className="group/avatar relative h-28 w-28 overflow-hidden rounded-full border-4 shadow-[0_16px_32px_rgba(28,25,23,0.12)]"
             style={{
               backgroundColor: accentColor,
               borderColor: primaryColor,
@@ -86,6 +90,16 @@ export function ResumeHeader({
               className="object-cover object-center"
               unoptimized={isDataAvatar}
             />
+            <div
+              data-export-ignore="true"
+              className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-stone-950/72 via-stone-950/28 to-transparent opacity-100 transition md:opacity-0 md:group-hover/avatar:opacity-100 md:group-focus-within/avatar:opacity-100"
+            >
+              <ProfileImageUpload
+                value={personal.avatar}
+                onChange={onProfileImageChange}
+                className="pointer-events-auto mb-3 inline-flex cursor-pointer items-center gap-2 rounded-full bg-white/96 px-3 py-2 text-[11px] font-semibold text-stone-900 shadow-[0_12px_24px_rgba(28,25,23,0.18)] transition hover:bg-white"
+              />
+            </div>
           </div>
         </div>
 

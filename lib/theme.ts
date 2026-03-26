@@ -4,6 +4,11 @@ import type { ResumeTheme } from "@/types/resume";
 
 type ThemeStyle = CSSProperties & Record<`--${string}`, string>;
 
+const headingFontTokens: Record<ResumeTheme["headingFont"], string> = {
+  playfair: "var(--font-playfair-display)",
+  lora: "var(--font-lora)",
+};
+
 const compactFontTokens: Record<`--${string}`, string> = {
   "--resume-name-size": "2.9rem",
   "--resume-title-size": "0.95rem",
@@ -16,6 +21,7 @@ const compactFontTokens: Record<`--${string}`, string> = {
 
 export const getResumeThemeStyle = (theme: ResumeTheme): ThemeStyle => ({
   ...compactFontTokens,
+  "--font-heading": headingFontTokens[theme.headingFont],
   backgroundColor: theme.backgroundColor,
   color: theme.textColor,
 });

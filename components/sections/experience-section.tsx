@@ -5,7 +5,6 @@ interface ExperienceSectionProps {
   title: string;
   presentLabel: string;
   primaryColor: string;
-  accentColor: string;
   mutedColor: string;
 }
 
@@ -14,7 +13,6 @@ export function ExperienceSection({
   title,
   presentLabel,
   primaryColor,
-  accentColor,
   mutedColor,
 }: ExperienceSectionProps) {
   return (
@@ -34,7 +32,7 @@ export function ExperienceSection({
             key={item.id}
             className="space-y-3 border-b border-stone-200 pb-5 last:border-b-0 last:pb-0"
           >
-            <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1">
               <div className="space-y-1">
                 <p
                   className="text-[length:var(--resume-small-size)] font-semibold uppercase tracking-[0.28em]"
@@ -46,18 +44,11 @@ export function ExperienceSection({
                   {item.role}
                 </h3>
                 <p className="text-[length:var(--resume-body-size)] font-semibold">
-                  {item.company}
+                  {item.location
+                    ? `${item.company}, ${item.location}`
+                    : item.company}
                 </p>
               </div>
-              <span
-                className="rounded-full px-3 py-1 text-[length:var(--resume-small-size)] font-semibold"
-                style={{
-                  backgroundColor: accentColor,
-                  color: primaryColor,
-                }}
-              >
-                {item.location}
-              </span>
             </div>
             <ul
               className="space-y-2 text-[length:var(--resume-body-size)] [line-height:var(--resume-line-height)]"

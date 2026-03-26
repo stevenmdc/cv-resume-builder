@@ -24,6 +24,8 @@ const createImageDataUrl = async (node: HTMLElement) => {
     height: node.offsetHeight,
     canvasWidth: A4_EXPORT_WIDTH_PX,
     canvasHeight: A4_EXPORT_HEIGHT_PX,
+    filter: (element) =>
+      !(element instanceof HTMLElement && element.dataset.exportIgnore === "true"),
   });
 };
 

@@ -66,10 +66,10 @@ export const defaultResumeData: ResumeData = {
     phone: "+33 6 12 34 56 78",
     location: "Paris, France",
     website: "linkedin.com/in/aliciamoreau",
-    avatar: "/images/profil-page.png",
+    avatar: "/images/profil-page.jpg",
   },
   summary:
-    "Designer hybride entre produit, identite visuelle et narration de marque. Je concois des experiences claires, editoriales et orientees conversion, avec une vraie attention au detail, au rythme de lecture et a l'impact visuel.",
+    "Designer hybride entre produit, identité visuelle et narration de marque. Je conçois des expériences claires, éditoriales et orientées conversion, avec une vraie attention au détail, au rythme de lecture et à l'impact visuel.",
   experience: [
     {
       id: createId(),
@@ -81,7 +81,7 @@ export const defaultResumeData: ResumeData = {
       current: true,
       highlights: [
         "Pilotage du redesign complet de la plateforme e-commerce premium et hausse de 24% du taux de conversion mobile.",
-        "Mise en place d'un design system partage entre produit, marketing et contenu editorial.",
+        "Mise en place d'un design system partagé entre produit, marketing et contenu éditorial.",
        ],
     },
     {
@@ -93,8 +93,8 @@ export const defaultResumeData: ResumeData = {
       endDate: "2022",
       current: false,
       highlights: [
-        "Creation d'identites visuelles et de sites vitrines pour des marques lifestyle et hospitality.",
-        "Conception de templates editoriaux elegants pour newsletters, landing pages et dossiers presse.",
+        "Création d'identités visuelles et de sites vitrines pour des marques lifestyle et hospitality.",
+        "Conception de templates éditoriaux élégants pour newsletters, landing pages et dossiers presse.",
       ],
     },
     {
@@ -106,8 +106,8 @@ export const defaultResumeData: ResumeData = {
       endDate: "2019",
       current: false,
       highlights: [
-        "Declinaison d'interfaces web et mobile pour des produits SaaS en forte croissance.",
-        "Collaboration rapprochee avec l'equipe front pour transformer les maquettes en interfaces robustes.",
+        "Déclinaison d'interfaces web et mobile pour des produits SaaS en forte croissance.",
+        "Collaboration rapprochée avec l'équipe front pour transformer les maquettes en interfaces robustes.",
       ],
     },
   ],
@@ -123,7 +123,7 @@ export const defaultResumeData: ResumeData = {
     {
       id: createId(),
       degree: "Bachelor Design Graphique",
-      school: "Bellecour Ecole",
+      school: "Bellecour École",
       location: "Lyon, France",
       startDate: "2011",
       endDate: "2014",
@@ -158,7 +158,7 @@ export const defaultResumeData: ResumeData = {
     },
   ],
   languages: [
-    { id: createId(), label: "Francais", level: "Langue maternelle" },
+    { id: createId(), label: "Français", level: "Langue maternelle" },
     { id: createId(), label: "Anglais", level: "Professionnel courant" },
   ],
   interests: [
@@ -187,5 +187,6 @@ export const defaultResumeData: ResumeData = {
     mutedColor: "#6e625c",
     backgroundColor: "#fffdfa",
     fontScale: "small",
+    headingFont: "playfair",
   },
 };

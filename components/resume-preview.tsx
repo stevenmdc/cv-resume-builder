@@ -13,10 +13,11 @@ import { SkillsSection } from "./sections/skills-section";
 
 interface ResumePreviewProps {
   resume: ResumeData;
+  onProfileImageChange: (nextValue: string) => void;
 }
 
 export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
-  function ResumePreview({ resume }, ref) {
+  function ResumePreview({ resume, onProfileImageChange }, ref) {
     const { theme } = resume;
     const labels = cvLabels[resume.locale];
     const previewStyle = {
@@ -40,6 +41,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
           primaryColor={theme.primaryColor}
           accentColor={theme.accentColor}
           mutedColor={theme.mutedColor}
+          onProfileImageChange={onProfileImageChange}
         />
 
         <div className="grid gap-8 px-10 py-8 md:grid-cols-[1.4fr_0.9fr]">
@@ -49,7 +51,6 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
               title={labels.experience}
               presentLabel={labels.present}
               primaryColor={theme.primaryColor}
-              accentColor={theme.accentColor}
               mutedColor={theme.mutedColor}
             />
             <EducationSection

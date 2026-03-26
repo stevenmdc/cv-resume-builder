@@ -1,15 +1,20 @@
 "use client";
 
 import { ImageUp } from "lucide-react";
+import type { ReactNode } from "react";
 
 interface ProfileImageUploadProps {
   value: string;
   onChange: (nextValue: string) => void;
+  className?: string;
+  children?: ReactNode;
 }
 
 export function ProfileImageUpload({
   value,
   onChange,
+  className,
+  children,
 }: ProfileImageUploadProps) {
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -41,21 +46,19 @@ export function ProfileImageUpload({
   };
 
   return (
-    <label className="flex cursor-pointer items-center justify-between gap-4 rounded-[1.35rem] border border-dashed border-stone-300 bg-stone-50 px-4 py-3 transition-colors hover:border-stone-400 hover:bg-stone-100">
-      <div className="space-y-1">
-        <span className="block font-medium text-stone-900">
-          Uploader une photo
-        </span>
-        <span className="block text-sm text-stone-500">
-          JPG, PNG ou WebP. Elle sera stockee dans le navigateur.
-        </span>
-        <span className="block max-w-[18rem] truncate text-sm text-stone-500">
-          {value.startsWith("data:") ? "Image locale importee" : value}
-        </span>
-      </div>
-      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-stone-900 text-white">
-        <ImageUp className="h-5 w-5" />
-      </span>
+    <label
+      className={
+        className ??
+        "inline-flex cursor-pointer items-center gap-2 rounded-full bg-stone-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800"
+      }
+      title={value.startsWith("data:") ? "Modifier la photo" : "Ajouter une photo"}
+    >
+      {children ?? (
+        <>
+          <ImageUp className="h-4 w-4" />
+          <span>Changer</span>
+        </>
+      )}
       <input
         type="file"
         accept="image/png,image/jpeg,image/webp"

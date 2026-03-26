@@ -35,6 +35,14 @@ select {
   font: inherit;
 }
 
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
 ::selection {
   background: #e86352;
   color: #fff7f4;

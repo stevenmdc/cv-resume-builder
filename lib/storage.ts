@@ -11,18 +11,25 @@ export const normalizeResumeData = (value: unknown): ResumeData => {
     return defaultResumeData;
   }
 
+  const personalValue = isObject(value.personal) ? value.personal : {};
+
   return {
     ...defaultResumeData,
     ...value,
     locale: value.locale === "en" ? "en" : "fr",
     personal: {
       ...defaultResumeData.personal,
-      ...(isObject(value.personal) ? value.personal : {}),
+      ...personalValue,
+      avatar: defaultResumeData.personal.avatar,
     },
     theme: {
       ...defaultResumeData.theme,
       ...(isObject(value.theme) ? value.theme : {}),
       fontScale: "small",
+      headingFont:
+        isObject(value.theme) && value.theme.headingFont === "lora"
+          ? "lora"
+          : "playfair",
     },
     experience: Array.isArray(value.experience)
       ? value.experience
@@ -67,5 +74,14 @@ export const saveResumeToStorage = (resume: ResumeData) => {
     return;
   }
 
-  window.localStorage.setItem(RESUME_STORAGE_KEY, JSON.stringify(resume));
+  window.localStorage.setItem(
+    RESUME_STORAGE_KEY,
+    JSON.stringify({
+      ...resume,
+      personal: {
+        ...resume.personal,
+        avatar: defaultResumeData.personal.avatar,
+      },
+    }),
+  );
 };

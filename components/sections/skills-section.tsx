@@ -14,9 +14,9 @@ export function SkillsSection({
   mutedColor,
 }: SkillsSectionProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-2.5">
       {items.map((item) => (
-        <div key={item.id} className="grid gap-2">
+        <div key={item.id} className="grid gap-1.5">
           <div className="flex items-center justify-between gap-4">
             <span className="text-[length:var(--resume-body-size)] font-medium">
               {item.label}

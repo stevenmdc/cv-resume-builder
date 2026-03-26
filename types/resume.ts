@@ -1,4 +1,5 @@
 export type FontScale = "small" | "medium" | "large";
+export type HeadingFont = "playfair" | "lora";
 export type ResumeLocale = "fr" | "en";
 
 export interface ResumePersonalDetails {
@@ -63,6 +64,7 @@ export interface ResumeTheme {
   mutedColor: string;
   backgroundColor: string;
   fontScale: FontScale;
+  headingFont: HeadingFont;
 }
 
 export interface ResumeData {

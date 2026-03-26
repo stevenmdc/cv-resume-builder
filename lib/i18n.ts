@@ -13,12 +13,12 @@ export const cvLabels: Record<
   }
 > = {
   fr: {
-    experience: "Experience",
+    experience: "Expérience",
     education: "Formation",
-    skills: "Competences",
+    skills: "Compétences",
     certifications: "Certifications",
     languages: "Langues",
-    interests: "Centres d'interet",
+    interests: "Centres d'intérêt",
     present: "Aujourd'hui",
   },
   en: {
