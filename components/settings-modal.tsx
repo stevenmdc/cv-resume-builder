@@ -1,15 +1,29 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Globe, RotateCcw, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  ChevronRight,
+  Globe,
+  Plus,
+  RotateCcw,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   A4_EXPORT_HEIGHT_PX,
   A4_EXPORT_WIDTH_PX,
 } from "@/lib/a4";
 import { SUMMARY_MAX_CHARACTERS, clampSummary } from "@/lib/resume";
 
-import type { ResumeData } from "@/types/resume";
+import type {
+  ResumeCertification,
+  ResumeData,
+  ResumeEducation,
+  ResumeExperience,
+  ResumeLanguage,
+  ResumeSkill,
+} from "@/types/resume";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -56,43 +70,51 @@ const parseLines = (value: string) =>
     .map((entry) => entry.trim())
     .filter(Boolean);
 
-const toExperienceText = (resume: ResumeData) =>
-  resume.experience
-    .map((item) =>
-      [
-        item.role,
-        item.company,
-        item.location,
-        item.startDate,
-        item.current ? "Present" : item.endDate,
-        item.highlights.join("; "),
-      ].join(" | "),
-    )
-    .join("\n");
+const createId = () =>
+  globalThis.crypto?.randomUUID?.() ??
+  `id-${Math.random().toString(36).slice(2, 11)}`;
 
-const toEducationText = (resume: ResumeData) =>
-  resume.education
-    .map((item) =>
-      [
-        item.degree,
-        item.school,
-        item.location,
-        item.startDate,
-        item.endDate,
-      ].join(" | "),
-    )
-    .join("\n");
+const clampPercentage = (value: number) =>
+  Number.isFinite(value) ? Math.min(100, Math.max(0, value)) : 0;
 
-const toSkillsText = (resume: ResumeData) =>
-  resume.skills.map((item) => `${item.label} | ${item.level}`).join("\n");
+const createEmptyExperience = (): ResumeExperience => ({
+  id: createId(),
+  role: "",
+  company: "",
+  location: "",
+  startDate: "",
+  endDate: "",
+  current: false,
+  highlights: [""],
+});
 
-const toCertificationsText = (resume: ResumeData) =>
-  resume.certifications
-    .map((item) => `${item.title} | ${item.issuer} | ${item.year}`)
-    .join("\n");
+const createEmptyEducation = (): ResumeEducation => ({
+  id: createId(),
+  degree: "",
+  school: "",
+  location: "",
+  startDate: "",
+  endDate: "",
+});
 
-const toLanguagesText = (resume: ResumeData) =>
-  resume.languages.map((item) => `${item.label} | ${item.level}`).join("\n");
+const createEmptySkill = (): ResumeSkill => ({
+  id: createId(),
+  label: "",
+  level: 80,
+});
+
+const createEmptyCertification = (): ResumeCertification => ({
+  id: createId(),
+  title: "",
+  issuer: "",
+  year: "",
+});
+
+const createEmptyLanguage = (): ResumeLanguage => ({
+  id: createId(),
+  label: "",
+  level: "",
+});
 
 const headingFontOptions: Array<{
   value: ResumeData["theme"]["headingFont"];
@@ -153,7 +175,7 @@ export function SettingsModal({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.98 }}
             transition={{ duration: 0.22, ease: "easeOut" }}
-            className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-[0_30px_80px_rgba(28,25,23,0.22)]"
+            className="flex h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-[0_30px_80px_rgba(28,25,23,0.22)]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-stone-200 px-6 py-5">
@@ -244,6 +266,81 @@ function SectionTitle({ title }: { title: string }) {
     <h3 className="font-heading text-xl font-semibold tracking-tight text-stone-950">
       {title}
     </h3>
+  );
+}
+
+function ArrayFieldEditor({
+  title,
+  addLabel,
+  emptyMessage,
+  onAdd,
+  children,
+}: {
+  title: string;
+  addLabel: string;
+  emptyMessage: string;
+  onAdd: () => void;
+  children: ReactNode;
+}) {
+  const hasItems = Array.isArray(children) ? children.length > 0 : Boolean(children);
+
+  return (
+    <div className="space-y-3 rounded-[1.5rem] border border-stone-200 bg-stone-50/40 p-3 md:p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h4 className="text-base font-semibold text-stone-900">{title}</h4>
+        <button
+          type="button"
+          onClick={onAdd}
+          aria-label={addLabel}
+          title={addLabel}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-stone-300 bg-white text-stone-700 transition hover:bg-stone-100"
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
+      {hasItems ? (
+        <div className="space-y-3">{children}</div>
+      ) : (
+        <p className="rounded-xl border border-dashed border-stone-300 bg-white px-3 py-3 text-sm text-stone-500">
+          {emptyMessage}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ArrayItemCard({
+  title,
+  onRemove,
+  children,
+}: {
+  title: string;
+  onRemove: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <details className="group rounded-2xl border border-stone-200 bg-white">
+      <summary className="flex list-none items-center gap-2 px-4 py-3 marker:content-none [&::-webkit-details-marker]:hidden">
+        <ChevronRight className="h-4 w-4 text-stone-500 transition group-open:rotate-90" />
+        <span className="text-sm font-semibold text-stone-700">{title}</span>
+        <button
+          type="button"
+          aria-label={`Supprimer ${title.toLowerCase()}`}
+          title="Supprimer"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onRemove();
+          }}
+          className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-200 text-red-700 transition hover:bg-red-50"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </summary>
+      <div className="space-y-4 border-t border-stone-200 p-4">
+        {children}
+      </div>
+    </details>
   );
 }
 
@@ -367,87 +464,231 @@ function ResumeContentSection({
   resume: ResumeData;
   onChange: (nextResume: ResumeData) => void;
 }) {
+  const updateExperienceAt = (
+    index: number,
+    patch: Partial<ResumeExperience>,
+  ) =>
+    onChange({
+      ...resume,
+      experience: resume.experience.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, ...patch } : item,
+      ),
+    });
+
+  const updateEducationAt = (index: number, patch: Partial<ResumeEducation>) =>
+    onChange({
+      ...resume,
+      education: resume.education.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, ...patch } : item,
+      ),
+    });
+
+  const updateSkillAt = (index: number, patch: Partial<ResumeSkill>) =>
+    onChange({
+      ...resume,
+      skills: resume.skills.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, ...patch } : item,
+      ),
+    });
+
   return (
-    <section className="space-y-4">
+    <section className="space-y-5">
       <SectionTitle title="Données du CV" />
-      <TextAreaField
-        label="Expériences (Poste | Entreprise | Localisation | Début | Fin/Present | Highlight 1; Highlight 2)"
-        value={toExperienceText(resume)}
-        onChange={(value) =>
+      <ArrayFieldEditor
+        title="Expériences"
+        addLabel="Ajouter une expérience"
+        onAdd={() =>
           onChange({
             ...resume,
-            experience: parseLines(value).map((line, index) => {
-              const [
-                role = "",
-                company = "",
-                location = "",
-                startDate = "",
-                endDate = "",
-                highlights = "",
-              ] = line.split("|").map((entry) => entry.trim());
-              const current = endDate.toLowerCase() === "present";
-              return {
-                id: `experience-${index}-${role}`,
-                role,
-                company,
-                location,
-                startDate,
-                endDate: current ? "" : endDate,
-                current,
-                highlights: highlights
-                  .split(";")
-                  .map((entry) => entry.trim())
-                  .filter(Boolean),
-              };
-            }),
+            experience: [...resume.experience, createEmptyExperience()],
           })
         }
-      />
-      <TextAreaField
-        label="Formation (Diplôme | École | Localisation | Début | Fin)"
-        value={toEducationText(resume)}
-        onChange={(value) =>
+        emptyMessage="Aucune expérience pour l'instant."
+      >
+        {resume.experience.map((item, index) => (
+          <ArrayItemCard
+            key={item.id || `experience-${index}`}
+            title={`Expérience ${index + 1}`}
+            onRemove={() =>
+              onChange({
+                ...resume,
+                experience: resume.experience.filter(
+                  (_, itemIndex) => itemIndex !== index,
+                ),
+              })
+            }
+          >
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field
+                label="Poste"
+                value={item.role}
+                onChange={(value) => updateExperienceAt(index, { role: value })}
+              />
+              <Field
+                label="Entreprise"
+                value={item.company}
+                onChange={(value) =>
+                  updateExperienceAt(index, { company: value })
+                }
+              />
+              <Field
+                label="Localisation"
+                value={item.location}
+                onChange={(value) =>
+                  updateExperienceAt(index, { location: value })
+                }
+              />
+              <Field
+                label="Date de début"
+                value={item.startDate}
+                onChange={(value) =>
+                  updateExperienceAt(index, { startDate: value })
+                }
+              />
+              <Field
+                label="Date de fin"
+                value={item.endDate}
+                disabled={item.current}
+                onChange={(value) =>
+                  updateExperienceAt(index, { endDate: value })
+                }
+              />
+            </div>
+            <label className="inline-flex items-center gap-2 text-sm font-medium text-stone-700">
+              <input
+                type="checkbox"
+                checked={item.current}
+                onChange={(event) =>
+                  updateExperienceAt(index, {
+                    current: event.target.checked,
+                    endDate: event.target.checked ? "" : item.endDate,
+                  })
+                }
+                className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-stone-400"
+              />
+              En poste actuellement
+            </label>
+            <TextAreaField
+              label="Points clés (une ligne par point)"
+              rows={4}
+              value={item.highlights.join("\n")}
+              helperText="Chaque ligne devient une puce dans le CV."
+              onChange={(value) =>
+                updateExperienceAt(index, { highlights: parseLines(value) })
+              }
+            />
+          </ArrayItemCard>
+        ))}
+      </ArrayFieldEditor>
+      <ArrayFieldEditor
+        title="Formations"
+        addLabel="Ajouter une formation"
+        onAdd={() =>
           onChange({
             ...resume,
-            education: parseLines(value).map((line, index) => {
-              const [
-                degree = "",
-                school = "",
-                location = "",
-                startDate = "",
-                endDate = "",
-              ] = line.split("|").map((entry) => entry.trim());
-              return {
-                id: `education-${index}-${degree}`,
-                degree,
-                school,
-                location,
-                startDate,
-                endDate,
-              };
-            }),
+            education: [...resume.education, createEmptyEducation()],
           })
         }
-      />
-      <TextAreaField
-        label="Compétences (Nom | Niveau de 0 à 100)"
-        value={toSkillsText(resume)}
-        onChange={(value) =>
+        emptyMessage="Aucune formation pour l'instant."
+      >
+        {resume.education.map((item, index) => (
+          <ArrayItemCard
+            key={item.id || `education-${index}`}
+            title={`Formation ${index + 1}`}
+            onRemove={() =>
+              onChange({
+                ...resume,
+                education: resume.education.filter(
+                  (_, itemIndex) => itemIndex !== index,
+                ),
+              })
+            }
+          >
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field
+                label="Diplôme"
+                value={item.degree}
+                onChange={(value) => updateEducationAt(index, { degree: value })}
+              />
+              <Field
+                label="École"
+                value={item.school}
+                onChange={(value) => updateEducationAt(index, { school: value })}
+              />
+              <Field
+                label="Localisation"
+                value={item.location}
+                onChange={(value) =>
+                  updateEducationAt(index, { location: value })
+                }
+              />
+              <Field
+                label="Date de début"
+                value={item.startDate}
+                onChange={(value) =>
+                  updateEducationAt(index, { startDate: value })
+                }
+              />
+              <Field
+                label="Date de fin"
+                value={item.endDate}
+                onChange={(value) => updateEducationAt(index, { endDate: value })}
+              />
+            </div>
+          </ArrayItemCard>
+        ))}
+      </ArrayFieldEditor>
+      <ArrayFieldEditor
+        title="Compétences"
+        addLabel="Ajouter une compétence"
+        onAdd={() =>
           onChange({
             ...resume,
-            skills: parseLines(value).map((line, index) => {
-              const [label = "", level = "80"] = line
-                .split("|")
-                .map((entry) => entry.trim());
-              return {
-                id: `skill-${index}-${label}`,
-                label,
-                level: Number(level) || 80,
-              };
-            }),
+            skills: [...resume.skills, createEmptySkill()],
           })
         }
-      />
+        emptyMessage="Aucune compétence pour l'instant."
+      >
+        {resume.skills.map((item, index) => (
+          <ArrayItemCard
+            key={item.id || `skill-${index}`}
+            title={`Compétence ${index + 1}`}
+            onRemove={() =>
+              onChange({
+                ...resume,
+                skills: resume.skills.filter(
+                  (_, itemIndex) => itemIndex !== index,
+                ),
+              })
+            }
+          >
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field
+                label="Nom"
+                value={item.label}
+                onChange={(value) => updateSkillAt(index, { label: value })}
+              />
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-stone-600">
+                  Niveau (0-100)
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={item.level}
+                  onChange={(event) =>
+                    updateSkillAt(index, {
+                      level: clampPercentage(Number(event.target.value)),
+                    })
+                  }
+                  className={inputClassName}
+                />
+              </label>
+            </div>
+          </ArrayItemCard>
+        ))}
+      </ArrayFieldEditor>
     </section>
   );
 }
@@ -459,48 +700,117 @@ function ExtrasSection({
   resume: ResumeData;
   onChange: (nextResume: ResumeData) => void;
 }) {
+  const updateCertificationAt = (
+    index: number,
+    patch: Partial<ResumeCertification>,
+  ) =>
+    onChange({
+      ...resume,
+      certifications: resume.certifications.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, ...patch } : item,
+      ),
+    });
+
+  const updateLanguageAt = (index: number, patch: Partial<ResumeLanguage>) =>
+    onChange({
+      ...resume,
+      languages: resume.languages.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, ...patch } : item,
+      ),
+    });
+
   return (
-    <section className="space-y-4">
+    <section className="space-y-5">
       <SectionTitle title="Compléments" />
-      <TextAreaField
-        label="Certifications (Titre | Organisme | Année)"
-        value={toCertificationsText(resume)}
-        onChange={(value) =>
+      <ArrayFieldEditor
+        title="Certifications"
+        addLabel="Ajouter une certification"
+        onAdd={() =>
           onChange({
             ...resume,
-            certifications: parseLines(value).map((line, index) => {
-              const [title = "", issuer = "", year = ""] = line
-                .split("|")
-                .map((entry) => entry.trim());
-              return {
-                id: `cert-${index}-${title}`,
-                title,
-                issuer,
-                year,
-              };
-            }),
+            certifications: [...resume.certifications, createEmptyCertification()],
           })
         }
-      />
-      <TextAreaField
-        label="Langues (Langue | Niveau)"
-        value={toLanguagesText(resume)}
-        onChange={(value) =>
+        emptyMessage="Aucune certification pour l'instant."
+      >
+        {resume.certifications.map((item, index) => (
+          <ArrayItemCard
+            key={item.id || `certification-${index}`}
+            title={`Certification ${index + 1}`}
+            onRemove={() =>
+              onChange({
+                ...resume,
+                certifications: resume.certifications.filter(
+                  (_, itemIndex) => itemIndex !== index,
+                ),
+              })
+            }
+          >
+            <div className="grid gap-4 md:grid-cols-3">
+              <Field
+                label="Titre"
+                value={item.title}
+                onChange={(value) =>
+                  updateCertificationAt(index, { title: value })
+                }
+              />
+              <Field
+                label="Organisme"
+                value={item.issuer}
+                onChange={(value) =>
+                  updateCertificationAt(index, { issuer: value })
+                }
+              />
+              <Field
+                label="Année"
+                value={item.year}
+                onChange={(value) =>
+                  updateCertificationAt(index, { year: value })
+                }
+              />
+            </div>
+          </ArrayItemCard>
+        ))}
+      </ArrayFieldEditor>
+      <ArrayFieldEditor
+        title="Langues"
+        addLabel="Ajouter une langue"
+        onAdd={() =>
           onChange({
             ...resume,
-            languages: parseLines(value).map((line, index) => {
-              const [label = "", level = ""] = line
-                .split("|")
-                .map((entry) => entry.trim());
-              return {
-                id: `language-${index}-${label}`,
-                label,
-                level,
-              };
-            }),
+            languages: [...resume.languages, createEmptyLanguage()],
           })
         }
-      />
+        emptyMessage="Aucune langue pour l'instant."
+      >
+        {resume.languages.map((item, index) => (
+          <ArrayItemCard
+            key={item.id || `language-${index}`}
+            title={`Langue ${index + 1}`}
+            onRemove={() =>
+              onChange({
+                ...resume,
+                languages: resume.languages.filter(
+                  (_, itemIndex) => itemIndex !== index,
+                ),
+              })
+            }
+          >
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field
+                label="Langue"
+                value={item.label}
+                onChange={(value) => updateLanguageAt(index, { label: value })}
+              />
+              <Field
+                label="Niveau"
+                value={item.level}
+                onChange={(value) => updateLanguageAt(index, { level: value })}
+              />
+            </div>
+          </ArrayItemCard>
+        ))}
+      </ArrayFieldEditor>
       <TextAreaField
         label="Centres d'intérêt (une ligne par item)"
         value={resume.interests.join("\n")}
@@ -624,10 +934,12 @@ function Field({
   label,
   value,
   onChange,
+  disabled = false,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }) {
   return (
     <label className="block">
@@ -637,6 +949,7 @@ function Field({
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        disabled={disabled}
         className={inputClassName}
       />
     </label>
@@ -649,12 +962,14 @@ function TextAreaField({
   onChange,
   maxLength,
   helperText,
+  rows = 5,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   maxLength?: number;
   helperText?: string;
+  rows?: number;
 }) {
   return (
     <label className="block">
@@ -669,7 +984,7 @@ function TextAreaField({
       <textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        rows={5}
+        rows={rows}
         maxLength={maxLength}
         className={`${inputClassName} min-h-32 resize-y`}
       />

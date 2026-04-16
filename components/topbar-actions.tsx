@@ -23,7 +23,7 @@ export function TopbarActions({
       initial={{ opacity: 0, y: -18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="flex items-center justify-end gap-3"
+      className="fixed right-4 top-4 z-30 flex items-center justify-end gap-3 sm:right-6 sm:top-6"
     >
       <button
         type="button"

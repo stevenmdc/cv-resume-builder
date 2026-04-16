@@ -22,7 +22,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
     const labels = cvLabels[resume.locale];
     const previewStyle = {
       ...getResumeThemeStyle(theme),
-      "--section-line": theme.accentColor,
+      "--section-line": theme.primaryColor,
     } as CSSProperties & Record<"--section-line", string>;
 
     return (

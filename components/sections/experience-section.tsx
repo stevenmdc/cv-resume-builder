@@ -19,12 +19,13 @@ export function ExperienceSection({
     <section className="space-y-6">
       <div className="flex items-center gap-4">
         <span
-          className="h-10 w-2 rounded-full"
+          className="h-8 w-1.5 rounded-full"
           style={{ backgroundColor: primaryColor }}
         />
         <h2 className="font-heading text-[length:var(--resume-section-size)] font-semibold tracking-tight">
           {title}
         </h2>
+        <div className="h-px flex-1 rounded-full bg-stone-200" />
       </div>
       <div className="space-y-6">
         {items.map((item) => (

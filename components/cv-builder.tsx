@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { RotateCcw } from "lucide-react";
 import {
   startTransition,
   useEffect,
@@ -37,6 +38,8 @@ export function CVBuilder() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [previewScale, setPreviewScale] = useState(1);
+  const [densityLevel, setDensityLevel] = useState(200);
 
   useEffect(() => {
     startTransition(() => {
@@ -80,6 +83,43 @@ export function CVBuilder() {
     setResume(normalizeResume(defaultResumeData));
   };
 
+  const updatePreviewScale = useEffectEvent(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const baseHorizontalPadding = window.innerWidth < 640 ? 32 : 56;
+    const baseVerticalChrome = window.innerWidth < 1024 ? 210 : 250;
+    const densityBias = (densityLevel - 100) / 100;
+    const horizontalPadding = Math.max(
+      -180,
+      baseHorizontalPadding - densityBias * 220,
+    );
+    const verticalChrome = Math.max(20, baseVerticalChrome - densityBias * 450);
+    const widthScale =
+      (window.innerWidth - horizontalPadding) / A4_PREVIEW_WIDTH_PX;
+    const heightScale =
+      (window.innerHeight - verticalChrome) / A4_PREVIEW_HEIGHT_PX;
+    const baseScale = Math.min(1, widthScale, heightScale);
+    const densityMultiplier = 0.35 + (densityLevel / 200) * 1.4;
+    const nextScale = baseScale * densityMultiplier;
+    setPreviewScale(Math.min(1.6, Math.max(0.2, nextScale)));
+  });
+
+  useEffect(() => {
+    updatePreviewScale();
+
+    const onResize = () => updatePreviewScale();
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    updatePreviewScale();
+  }, [densityLevel]);
+
   const runExport = async (
     exporter: (node: HTMLElement, name: string) => Promise<void>,
   ) => {
@@ -97,7 +137,31 @@ export function CVBuilder() {
 
   return (
     <>
-      <div className="mx-auto flex max-w-3xl flex-col gap-5">
+      <div className="fixed right-4 top-1/2 z-20 hidden -translate-y-1/2 lg:flex lg:flex-col lg:items-center">
+        <div className="flex h-34 w-8 items-center justify-center">
+          <input
+            type="range"
+            min={125}
+            max={200}
+            step={1}
+            value={densityLevel}
+            onChange={(event) => setDensityLevel(Number(event.target.value))}
+            aria-label="Ajuster la densité d'affichage du CV"
+            className="h-2 w-40 cursor-pointer accent-stone-800 rotate-[-90deg]"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => setDensityLevel(200)}
+          aria-label="Reset"
+          title="Reset"
+          className="inline-flex h-8 w-8 items-center justify-center text-stone-700/80 transition hover:text-stone-900"
+        >
+          <RotateCcw className="h-5 w-5" />
+        </button>
+      </div>
+
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5">
         <TopbarActions
           onOpenSettings={() => setIsSettingsOpen(true)}
           onExportPdf={() => void runExport(exportResumeAsPdf)}
@@ -108,16 +172,24 @@ export function CVBuilder() {
         <div
           className="mx-auto"
           style={{
-            width: `${A4_PREVIEW_WIDTH_PX}px`,
-            minWidth: `${A4_PREVIEW_WIDTH_PX}px`,
-            minHeight: `${A4_PREVIEW_HEIGHT_PX}px`,
+            width: `${A4_PREVIEW_WIDTH_PX * previewScale}px`,
+            minHeight: `${A4_PREVIEW_HEIGHT_PX * previewScale}px`,
           }}
         >
-          <ResumePreview
-            ref={previewRef}
-            resume={resume}
-            onProfileImageChange={handleProfileImageChange}
-          />
+          <div
+            style={{
+              width: `${A4_PREVIEW_WIDTH_PX}px`,
+              height: `${A4_PREVIEW_HEIGHT_PX}px`,
+              transform: `scale(${previewScale})`,
+              transformOrigin: "top left",
+            }}
+          >
+            <ResumePreview
+              ref={previewRef}
+              resume={resume}
+              onProfileImageChange={handleProfileImageChange}
+            />
+          </div>
         </div>
       </div>
 
